@@ -14,13 +14,13 @@ MCP Server for [Docflow](https://docs-docflow.textin.com/docflow/cn/00-overview/
 ## Installation
 
 ```bash
-pip install git+https://github.com/your-org/docflow-mcp.git
+pip install git+https://github.com/intsig-textin/docflow-mcp.git
 ```
 
 Or install in editable mode for development:
 
 ```bash
-git clone https://github.com/your-org/docflow-mcp.git
+git clone https://github.com/intsig-textin/docflow-mcp.git
 cd docflow-mcp
 pip install -e .
 ```
