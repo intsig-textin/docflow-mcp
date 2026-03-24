@@ -1,0 +1,2 @@
+fastmcp>=2.0
+docflow-sdk @ git+https://github.com/yuksin-lei/docflow-sdk.git
