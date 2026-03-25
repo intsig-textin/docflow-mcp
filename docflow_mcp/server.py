@@ -25,6 +25,7 @@ Authentication (environment variables):
   DOCFLOW_HOST         — optional, defaults to https://docflow.textin.com
 """
 
+import dataclasses
 import os
 import time
 from typing import Any, Optional
@@ -88,9 +89,11 @@ def _collect_files(file_paths: Optional[list[str]], directory: Optional[str]) ->
 
 
 def _s(obj: Any) -> Any:
-    """Recursively convert pydantic models to plain dicts/lists."""
+    """Recursively convert pydantic models / dataclasses to plain dicts/lists."""
     if hasattr(obj, "model_dump"):
-        return obj.model_dump()
+        return _s(obj.model_dump())
+    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+        return _s(dataclasses.asdict(obj))
     if isinstance(obj, list):
         return [_s(i) for i in obj]
     if isinstance(obj, dict):
