@@ -47,7 +47,7 @@ mcp = FastMCP(
     ),
 )
 
-client = DocflowClient.from_env()
+client = DocflowClient.from_env(timeout=int(os.environ.get("DOCFLOW_TIMEOUT", "120")))
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -201,7 +201,7 @@ def docflow_create_category(
     """
     return _s(client.category.create(
         workspace_id=workspace_id, name=name, fields=fields,
-        sample_file_path=sample_file_path,
+        sample_files=[sample_file_path],
         extract_model=extract_model, category_prompt=category_prompt,
     ))
 
@@ -498,9 +498,12 @@ def docflow_update_workspace(
         auth_scope: 0=private (self only), 1=public (enterprise members).
         callback_url: Webhook URL for processing completion notifications.
     """
+    current = _s(client.workspace.get(workspace_id=workspace_id))
     return _s(client.workspace.update(
-        workspace_id=workspace_id, name=name,
-        description=description, auth_scope=auth_scope,
+        workspace_id=workspace_id,
+        name=name if name is not None else current["name"],
+        description=description,
+        auth_scope=auth_scope if auth_scope is not None else current.get("auth_scope", 0),
         callback_url=callback_url,
     ))
 
@@ -601,14 +604,18 @@ def docflow_update_category_table(
     category_id: str,
     table_id: str,
     name: Optional[str] = None,
-    fields: Optional[list[dict]] = None,
+    collect_from_multi_table: bool = False,
 ) -> dict:
     """
     Update a table configuration in a category (POST /category/tables/update).
+
+    Args:
+        collect_from_multi_table: Whether to collect data from multiple tables on the page.
     """
     return _s(client.category.tables.update(
         workspace_id=workspace_id, category_id=category_id,
-        table_id=table_id, name=name, fields=fields,
+        table_id=table_id, name=name,
+        collect_from_multi_table=collect_from_multi_table,
     ))
 
 
@@ -721,7 +728,7 @@ def docflow_add_category_samples(
     added = 0
     for path in sample_file_paths:
         client.category.samples.upload(
-            workspace_id=workspace_id, category_id=category_id, sample_file_path=path,
+            workspace_id=workspace_id, category_id=category_id, file=path,
         )
         added += 1
     return {"added_count": added}
