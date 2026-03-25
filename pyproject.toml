@@ -17,5 +17,8 @@ dependencies = [
 [project.scripts]
 docflow-mcp = "docflow_mcp.server:main"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["docflow_mcp"]
